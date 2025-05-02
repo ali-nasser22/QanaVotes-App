@@ -25,11 +25,7 @@ class _MapScreenState extends State<MapScreen> {
         point: electionCenterLocation,
         width: 40,
         height: 40,
-        child: const Icon(
-          Icons.location_pin,
-          color: Colors.red,
-          size: 40,
-        ),
+        child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
       ),
     ];
   }
@@ -50,7 +46,8 @@ class _MapScreenState extends State<MapScreen> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate:
+                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                 subdomains: ['a', 'b', 'c'],
               ),
               PopupMarkerLayer(
@@ -59,16 +56,19 @@ class _MapScreenState extends State<MapScreen> {
                   popupController: _popupController,
                   markerTapBehavior: MarkerTapBehavior.togglePopup(),
                   popupDisplayOptions: PopupDisplayOptions(
-                    builder: (BuildContext context, Marker marker) => Card(
-                      margin: const EdgeInsets.all(6),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Text(
-                          'ثانوية قانا الرسمية',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                    builder:
+                        (BuildContext context, Marker marker) => Card(
+                          margin: const EdgeInsets.all(6),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Text(
+                              'ثانوية قانا الرسمية',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
                   ),
                 ),
               ),
