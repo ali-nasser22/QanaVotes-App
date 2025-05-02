@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CandidateDetailScreen extends StatelessWidget {
+class CandidateDetailScreen extends StatefulWidget {
   final String name;
   final String photoUrl;
   final String description;
@@ -13,9 +13,23 @@ class CandidateDetailScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final TextEditingController questionController = TextEditingController();
+  State<CandidateDetailScreen> createState() => _CandidateDetailScreenState();
+}
 
+class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
+  final TextEditingController questionController = TextEditingController();
+
+  int? vote;
+
+  void setVote(int value) {
+    setState(() {
+      vote = value;
+    });
+    // TODO: send vote to backend
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -38,7 +52,7 @@ class CandidateDetailScreen extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(100),
               child: Image.network(
-                photoUrl,
+                widget.photoUrl,
                 height: 120,
                 width: 120,
                 fit: BoxFit.cover,
@@ -46,18 +60,45 @@ class CandidateDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              name,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-              ),
+              widget.name,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
             Text(
-              description,
+              widget.description,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 16, color: Colors.black87),
             ),
+
+            const SizedBox(height: 28),
+            const Text(
+              'Your Vote',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.thumb_up,
+                    size: 32,
+                    color: vote == 1 ? Colors.green : Colors.grey[400],
+                  ),
+                  onPressed: () => setVote(1),
+                ),
+                const SizedBox(width: 20),
+                IconButton(
+                  icon: Icon(
+                    Icons.thumb_down,
+                    size: 32,
+                    color: vote == -1 ? Colors.red : Colors.grey[400],
+                  ),
+                  onPressed: () => setVote(-1),
+                ),
+              ],
+            ),
+
             const SizedBox(height: 28),
             Align(
               alignment: Alignment.centerLeft,
@@ -99,10 +140,14 @@ class CandidateDetailScreen extends StatelessWidget {
                 ),
                 child: const Text(
                   'Submit Question',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
