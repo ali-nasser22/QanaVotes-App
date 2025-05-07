@@ -52,7 +52,7 @@ class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Vote failed: $e')));
+      ).showSnackBar(SnackBar(content: Text('Vote failed')));
     }
   }
 
@@ -135,10 +135,13 @@ class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
                 padding: const EdgeInsets.only(top: 12),
                 child: ElevatedButton.icon(
                   onPressed: submitVote,
-                  icon: const Icon(Icons.how_to_vote),
+                  icon: const Icon(Icons.how_to_vote, color: Colors.white),
                   label: Text(
                     isFirstVote ? 'Submit Vote' : 'Update Vote',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.indigo,
