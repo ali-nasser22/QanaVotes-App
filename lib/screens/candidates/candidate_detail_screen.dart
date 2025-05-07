@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 
+import '../../core/api_service.dart';
+
 class CandidateDetailScreen extends StatefulWidget {
+  final int id;
   final String name;
   final String photoUrl;
   final String description;
+  final String token;
 
   const CandidateDetailScreen({
     super.key,
+    required this.id,
     required this.name,
     required this.photoUrl,
     required this.description,
+    required this.token,
   });
 
   @override
@@ -20,12 +26,34 @@ class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
   final TextEditingController questionController = TextEditingController();
 
   int? vote;
+  bool isFirstVote = true;
 
-  void setVote(int value) {
-    setState(() {
-      vote = value;
-    });
-    // TODO: send vote to backend
+  void selectVote(int value) {
+    setState(() => vote = value);
+  }
+
+  void submitVote() async {
+    if (vote == null) return;
+
+    try {
+      await ApiService.voteForCandidate(
+        candidateId: widget.id,
+        voteValue: vote!,
+        token: widget.token,
+      );
+
+      setState(() {
+        isFirstVote = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vote submitted successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Vote failed: $e')));
+    }
   }
 
   @override
@@ -56,6 +84,9 @@ class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
                 height: 120,
                 width: 120,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(Icons.person, size: 80);
+                },
               ),
             ),
             const SizedBox(height: 16),
@@ -69,8 +100,8 @@ class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 16, color: Colors.black87),
             ),
-
             const SizedBox(height: 28),
+
             const Text(
               'Your Vote',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
@@ -85,7 +116,7 @@ class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
                     size: 32,
                     color: vote == 1 ? Colors.green : Colors.grey[400],
                   ),
-                  onPressed: () => setVote(1),
+                  onPressed: () => selectVote(1),
                 ),
                 const SizedBox(width: 20),
                 IconButton(
@@ -94,10 +125,33 @@ class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
                     size: 32,
                     color: vote == -1 ? Colors.red : Colors.grey[400],
                   ),
-                  onPressed: () => setVote(-1),
+                  onPressed: () => selectVote(-1),
                 ),
               ],
             ),
+
+            if (vote != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: ElevatedButton.icon(
+                  onPressed: submitVote,
+                  icon: const Icon(Icons.how_to_vote),
+                  label: Text(
+                    isFirstVote ? 'Submit Vote' : 'Update Vote',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.indigo,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
 
             const SizedBox(height: 28),
             Align(

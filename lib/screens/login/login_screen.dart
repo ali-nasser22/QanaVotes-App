@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:qanavotes_app/core/api_service.dart';
+import 'package:qanavotes_app/models/user.dart';
+import 'package:qanavotes_app/screens/candidates/candidates_list_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,14 +17,34 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool isLoading = false;
 
-  void handleLogin() {
-    if (_formKey.currentState!.validate()) {
-      setState(() => isLoading = true);
-      // TODO: Add backend logic here
-      Future.delayed(const Duration(seconds: 2), () {
-        setState(() => isLoading = false);
-        Navigator.pushNamed(context, '/candidates');
-      });
+  void handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final loginId = loginIdController.text.trim();
+    final password = passwordController.text.trim();
+
+    setState(() => isLoading = true);
+
+    try {
+      final result = await ApiService.loginUser(
+        loginId: loginId,
+        password: password,
+      );
+      final String token = result['token'];
+      final User user = result['user'];
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => CandidatesListScreen(user: user, token: token),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Invalid Credentials!')));
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -98,32 +121,30 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: isLoading
-                      ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                      : const Text(
-                    'Login',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child:
+                      isLoading
+                          ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                          : const Text(
+                            'Login',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                 ),
               ),
               const SizedBox(height: 16),
               const Text(
                 'Need help? Contact election support.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.black54,
-                ),
+                style: TextStyle(fontSize: 13, color: Colors.black54),
               ),
             ],
           ),
