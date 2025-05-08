@@ -3,9 +3,13 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:qanavotes_app/core/widgets/main_scaffold.dart';
+import 'package:qanavotes_app/models/user.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
+  final User user;
+  final String token;
+
+  const MapScreen({required this.user, required this.token, super.key});
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -34,6 +38,8 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return MainScaffold(
       title: 'Election Center Map',
+      user: widget.user,
+      token: widget.token,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: ClipRRect(

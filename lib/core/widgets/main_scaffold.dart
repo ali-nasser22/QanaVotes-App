@@ -1,10 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:qanavotes_app/models/user.dart';
+
+import '../../screens/guidance/election_guidance_screen.dart';
+import '../../screens/leaderboard/leaderboard_screen.dart';
+import '../../screens/map/map_screen.dart';
+import '../../screens/profile/profile_screen.dart';
 
 class MainScaffold extends StatelessWidget {
   final Widget child;
   final String title;
+  final User user;
+  final String token;
 
-  const MainScaffold({super.key, required this.child, required this.title});
+  const MainScaffold({
+    super.key,
+    required this.child,
+    required this.title,
+    required this.user,
+    required this.token,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +42,7 @@ class MainScaffold extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Color(0xFF3F51B5),
-              ),
+              decoration: BoxDecoration(color: Color(0xFF3F51B5)),
               child: Text(
                 'QanaVotes Menu',
                 style: TextStyle(
@@ -44,35 +56,60 @@ class MainScaffold extends StatelessWidget {
               leading: const Icon(Icons.how_to_vote),
               title: const Text('Candidates'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/candidates');
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/candidates',
+                  arguments: {'user': user, 'token': token},
+                );
               },
             ),
             ListTile(
               leading: const Icon(Icons.leaderboard),
               title: const Text('Leaderboard'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/leaderboard');
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => LeaderboardScreen(user: user, token: token),
+                  ),
+                );
               },
             ),
             ListTile(
               leading: const Icon(Icons.info_outline),
               title: const Text('Guidance'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/guidance');
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => ElectionGuidanceScreen(user: user, token: token),
+                  ),
+                );
               },
             ),
             ListTile(
               leading: const Icon(Icons.map_outlined),
               title: const Text('Map'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/map');
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MapScreen(user: user, token: token),
+                  ),
+                );
               },
             ),
             ListTile(
               leading: const Icon(Icons.person_outline),
               title: const Text('Profile'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/profile');
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ProfileScreen(user: user, token: token),
+                  ),
+                );
               },
             ),
             const Divider(),
@@ -80,7 +117,11 @@ class MainScaffold extends StatelessWidget {
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () {
-                Navigator.popUntil(context, ModalRoute.withName('/login'));
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/login',
+                  (route) => false,
+                );
               },
             ),
           ],

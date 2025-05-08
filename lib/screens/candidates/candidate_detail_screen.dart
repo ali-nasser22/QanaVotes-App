@@ -27,6 +27,26 @@ class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
 
   int? vote;
   bool isFirstVote = true;
+  List<Map<String, dynamic>> myQuestions = [];
+  bool isLoadingQuestions = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadMyQuestions();
+  }
+
+  Future<void> loadMyQuestions() async {
+    try {
+      final result = await ApiService.getMyQuestions(widget.token);
+      setState(() {
+        myQuestions = result;
+        isLoadingQuestions = false;
+      });
+    } catch (e) {
+      setState(() => isLoadingQuestions = false);
+    }
+  }
 
   void selectVote(int value) {
     setState(() => vote = value);
@@ -52,7 +72,7 @@ class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Vote failed')));
+      ).showSnackBar(const SnackBar(content: Text('Vote failed')));
     }
   }
 
@@ -185,8 +205,37 @@ class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  // TODO: submit question logic
+                onPressed: () async {
+                  final text = questionController.text.trim();
+                  if (text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please write a question first'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  try {
+                    await ApiService.submitQuestion(
+                      candidateId: widget.id,
+                      questionText: text,
+                      token: widget.token,
+                    );
+
+                    questionController.clear();
+                    await loadMyQuestions();
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Question submitted successfully'),
+                      ),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error submitting question: $e')),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.indigo[700],
@@ -205,6 +254,39 @@ class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
                 ),
               ),
             ),
+
+            const SizedBox(height: 24),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Your Submitted Questions',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+            ),
+            const SizedBox(height: 12),
+            if (isLoadingQuestions)
+              const Center(child: CircularProgressIndicator())
+            else if (myQuestions.isEmpty)
+              const Text("You haven't asked any questions yet.")
+            else
+              ListView.builder(
+                itemCount: myQuestions.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  final q = myQuestions[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    child: ListTile(
+                      title: Text(q['question']),
+                      subtitle: Text(
+                        'Asked on ${q['asked_at']?.toString().substring(0, 10) ?? 'Unknown date'}',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  );
+                },
+              ),
           ],
         ),
       ),

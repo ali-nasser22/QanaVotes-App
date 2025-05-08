@@ -61,6 +61,8 @@ class _CandidatesListScreenState extends State<CandidatesListScreen> {
   Widget build(BuildContext context) {
     return MainScaffold(
       title: 'Candidates',
+      user: widget.user,
+      token: widget.token,
       child:
           isLoading
               ? const Center(child: CircularProgressIndicator())
